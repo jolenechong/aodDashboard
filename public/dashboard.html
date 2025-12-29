@@ -6,31 +6,70 @@
 		<script src="https://cdn.tailwindcss.com"></script>
 		<script src="js/dashboard.js" defer></script>
 	</head>
-	<body>
+	<body class="bg-black">
 
-		<div class="max-w-md mx-auto p-4 text-white">
-			<div class="mb-2 text-sm text-gray-400">Battery</div>
-
-			<div class="w-full h-3 rounded-full bg-gray-800 overflow-hidden">
-				<div
-						id="batteryFill"
-						class="h-full w-0 transition-all duration-700 ease-out"
-						></div>
-			</div>
-
+		<div class="w-full h-3 bg-gray-800 overflow-hidden">
 			<div
-					id="batteryText"
-					class="mt-2 text-sm text-gray-300"
-					>
-					Loading…
-			</div>
+					id="batteryFill"
+					class="h-full w-0 transition-all duration-700 ease-out bg-gradient-to-r from-blue-500 to-purple-500"
+					></div>
 		</div>
 
-		<section class="h-screen bg-black flex items-center justify-center">
+		<div class="flex max-w-4xl mx-auto gap-4">
+			<section class="w-1/3 max-w-4xl mx-auto p-4 text-gray-300">
+				<div
+						id="batteryText"
+						class="mt-2 text-gray-400"
+						>
+						Loading…
+				</div>
 
-			<h1>Dashboard</h1>
+					<div class="pt-5">
 
-		</section>
+						<div id="clock" class="text-8xl"></div>
+
+						<div class="p-2">
+							<span id="weatherIcon" class="text-3xl">☁️</span>
+							<span id="weatherTemp" class="text-3xl text-gray-400 pl-2">--°C</span>
+							<span id="weatherDesc" class="text-gray-400 pl-2">Loading…</span>
+						</div>
+
+					</div>
+
+			</section>
+
+			<section class="w-2/3 max-w-4xl mx-auto p-4 text-gray-300 px-4">
+				<div id="status" class="text-gray-400 text-sm my-1">today...</div>
+				<div class="flex flex-col md:flex-row gap-4 items-start">
+					<button class="flex-1 bg-gray-900 rounded-lg p-4 text-left flex flex-col justify-start"
+							onclick="toggleStudyMusic(this)">
+						<div class="font-semibold text-2xl">♫ study</div>
+						<div class="text-gray-400 text-sm mt-1">Some description</div>
+					</button>
+					<button class="flex-1 bg-gray-900 rounded-lg p-4 text-left flex flex-col justify-start"
+							onclick="toggleRainMusic(this)">
+						<div class="font-semibold text-2xl">♫ rain</div>
+						<div class="text-gray-400 text-sm mt-1">Some description</div>
+					</button>
+					<button class="flex-1 bg-gray-900 rounded-lg p-4 text-left flex flex-col justify-start"
+							onclick="toggleStudyMusic(this)">
+						<div class="font-semibold text-2xl">♫ relax</div>
+						<div class="text-gray-400 text-sm mt-1">Some description</div>
+					</button>
+				</div>
+			</section>
+
+		</div>
+
+		<audio id="studyAudio" loop class="hidden">
+			<source src="music/study.mp3" type="audio/mpeg">
+			Your browser does not support the audio element.
+		</audio>
+
+		<audio id="rainAudio" loop class="hidden">
+			<source src="music/rain.mp3" type="audio/mpeg">
+			Your browser does not support the audio element.
+		</audio>
 	</body>
 </html>
 
