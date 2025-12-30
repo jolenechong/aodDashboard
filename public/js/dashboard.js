@@ -20,7 +20,7 @@ function renderBattery(b) {
 
 	fill.style.width = `${b.percentage}%`;
 	text.textContent =
-		`${b.percentage}% · ${b.plugged == "PLUGGED" ? 'Charging' : 'On battery'} · ${b.temperature}°C`;
+		`${b.percentage}% · ${b.plugged == "PLUGGED_AC" ? 'Charging' : 'On battery'} · ${b.temperature}°C`;
 }
 
 fetchBattery();
@@ -39,7 +39,6 @@ async function fetchRAM() {
 }
 
 function renderRAM(b) {
-	console.log("ram here ", b);
 	const text = document.getElementById('serverStats');
 	if (!text) return;
 	text.textContent = 
@@ -50,8 +49,10 @@ fetchRAM();
 setInterval(fetchRAM, REFRESH_MS);
 
 // clock
-function updateClock() { // fix this formatting
-	document.getElementById('clock').textContent = new Date().toLocaleTimeString().slice(0, -3);
+function updateClock() {
+    const now = new Date();
+    const options = { hour: '2-digit', minute: '2-digit', hour12: false };
+    document.getElementById('clock').textContent = now.toLocaleTimeString([], options);
 }
 setInterval(updateClock, 1000);
 updateClock();
