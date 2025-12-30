@@ -24,17 +24,24 @@
 						Loading…
 				</div>
 
-					<div class="pt-5">
-
-						<div id="clock" class="text-8xl"></div>
-
-						<div class="p-2">
-							<span id="weatherIcon" class="text-3xl">☁️</span>
-							<span id="weatherTemp" class="text-3xl text-gray-400 pl-2">--°C</span>
-							<span id="weatherDesc" class="text-gray-400 pl-2">Loading…</span>
-						</div>
-
+					<div
+							id="serverStats"
+							class="mt-2 text-gray-400"
+							>
+							Loading…
 					</div>
+
+						<div class="pt-5">
+
+							<div id="clock" class="text-8xl"></div>
+
+							<div class="p-2">
+								<span id="weatherIcon" class="text-3xl">☁️</span>
+								<span id="weatherTemp" class="text-3xl text-gray-400 pl-2">--°C</span>
+								<span id="weatherDesc" class="text-gray-400 pl-2">Loading…</span>
+							</div>
+
+						</div>
 
 			</section>
 
@@ -43,17 +50,17 @@
 				<div class="flex flex-col md:flex-row gap-4 items-start">
 					<button class="flex-1 bg-gray-900 rounded-lg p-4 text-left flex flex-col justify-start"
 							onclick="toggleStudyMusic(this)">
-						<div class="font-semibold text-2xl">♫ study</div>
+						<div class="font-semibold text-2xl"><span id="studyVis">ııııı</span> study</div>
 						<div class="text-gray-400 text-sm mt-1">Some description</div>
 					</button>
 					<button class="flex-1 bg-gray-900 rounded-lg p-4 text-left flex flex-col justify-start"
 							onclick="toggleRainMusic(this)">
-						<div class="font-semibold text-2xl">♫ rain</div>
+						<div class="font-semibold text-2xl"><span id="rainVis">ııııı</span> rain</div>
 						<div class="text-gray-400 text-sm mt-1">Some description</div>
 					</button>
 					<button class="flex-1 bg-gray-900 rounded-lg p-4 text-left flex flex-col justify-start"
 							onclick="toggleStudyMusic(this)">
-						<div class="font-semibold text-2xl">♫ relax</div>
+						<div class="font-semibold text-2xl">ııııı relax</div>
 						<div class="text-gray-400 text-sm mt-1">Some description</div>
 					</button>
 				</div>

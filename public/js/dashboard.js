@@ -26,8 +26,31 @@ function renderBattery(b) {
 fetchBattery();
 setInterval(fetchBattery, REFRESH_MS);
 
+// ram
+async function fetchRAM() {
+	try {
+		const res = await fetch('/api/dashboard/ram', { cache: 'no-store' });
+		const json = await res.json();
+
+		renderRAM(json);
+	} catch (err) {
+		console.warn('RAM fetch failed', err);
+	}
+}
+
+function renderRAM(b) {
+	console.log("ram here ", b);
+	const text = document.getElementById('serverStats');
+	if (!text) return;
+	text.textContent = 
+		`${b.used_pct}% RAM used`;
+}
+
+fetchRAM();
+setInterval(fetchRAM, REFRESH_MS);
+
 // clock
-function updateClock() {
+function updateClock() { // fix this formatting
 	document.getElementById('clock').textContent = new Date().toLocaleTimeString().slice(0, -3);
 }
 setInterval(updateClock, 1000);
@@ -50,7 +73,6 @@ async function fetchWeather() {
 			code: json.current.weather_code,
 			updated: Date.now()
 		};
-		console.log("here", w);
 
 		renderWeather(w);
 	} catch (e) {
@@ -83,38 +105,64 @@ setInterval(fetchWeather, 60 * 60 * 1000);
 
 
 // audio
-let isStudyPlaying = false;
+function stopAllAudio() {
+	document.querySelectorAll('audio').forEach(a => {
+		a.pause();
+		a.currentTime = 0;
+	});
+}
+
+function startVisualizer(element) {
+	const bars = ["ı", "l"];
+	element._interval = setInterval(() => {
+		let line = "";
+		for (let i = 0; i < 5; i++) {
+			line += bars[Math.floor(Math.random() * bars.length)];
+		}
+		element.textContent = line;
+	}, 400);
+}
+
+function stopVisualizer(element, interval) {
+	if (element._interval) {
+		clearInterval(element._interval);
+		element._interval = null;
+	}
+	element.textContent = "ııııı"; // reset
+}
 
 function toggleStudyMusic(btn) {
 	const audio = document.getElementById('studyAudio');
 	const stat = document.getElementById('status');
+	const vis = document.getElementById('studyVis');
 
-	if (!isStudyPlaying) {
+	if (audio.paused) {
 		audio.play();
-		isStudyPlaying = true;
-		stat.textContent = "focusing...";
+		stat.textContent = "focusing..."; // status will be last playiny thing
+		startVisualizer(vis);
 	} else {
 		audio.pause();
 		audio.currentTime = 0;
-		isStudyPlaying = false;
 		stat.textContent = "today...";
+		stopVisualizer(vis);
 	}
 }
-
-let isRainPlaying = false;
 
 function toggleRainMusic(btn) {
 	const audio = document.getElementById('rainAudio');
-	const stat = document.getElementById('status'); // status will show last playing thing (fix this)
+	const stat = document.getElementById('status');
+	const vis = document.getElementById('rainVis');
 
-	if (!isStudyPlaying) {
+	if (audio.paused) {
 		audio.play();
-		isRainPlaying = true;
 		stat.textContent = "rain...";
+		startVisualizer(vis);
 	} else {
 		audio.pause();
 		audio.currentTime = 0;
-		isRainPlaying = false;
 		stat.textContent = "today...";
+		stopVisualizer(vis);
 	}
 }
+
+stopAllAudio();

@@ -42,7 +42,7 @@ app.post('/download', async (req, res) => {
 	}
 });
 
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
 	res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
@@ -51,6 +51,34 @@ let batteryState = {
 	data: null,
 	error: null
 };
+
+app.get('/api/dashboard/ram', async (req, res) => {
+	try {
+		const { stdout } = await execAsync(
+			`awk '
+		/MemTotal/ {t=$2}
+		/MemAvailable/ {a=$2}
+		END {
+		  used=t-a
+		  printf("%.2f %.2f %.1f",
+				 used/1024/1024, t/1024/1024, used/t*100)
+		}' /proc/meminfo`
+		);
+
+		const [usedGb, totalGb, usedPct] = stdout.trim().split(/\s+/).map(Number);
+
+		await res.json({
+			used_gb: usedGb,
+			total_gb: totalGb,
+			used_pct: usedPct
+		});
+
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({ error: 'Failed to read RAM info' });
+	}
+
+})
 
 app.get('/api/dashboard/battery', async (req, res) => {
 	try {
@@ -65,7 +93,7 @@ app.get('/api/dashboard/battery', async (req, res) => {
 
 });
 
-app.get('/dashboard', (req, res) => {
+app.get('/dashboard', async (req, res) => {
 	res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
