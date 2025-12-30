@@ -1,0 +1,51 @@
+<template id="progress-circle">
+	<div class="relative w-32 h-32 bg-black flex items-center justify-center">
+		<svg class="w-full h-full" viewBox="0 0 100 100">
+			<defs>
+			<linearGradient id="solidGray" x1="0%" y1="0%" x2="100%" y2="0%">
+			<stop offset="0%" stop-color="#1f2937"/>
+			<stop offset="100%" stop-color="#1f2937"/>
+			</linearGradient>
+			</defs>
+			<circle
+					stroke-width="10"
+					stroke="url(#solidGray)"
+					cx="50"
+					cy="50"
+					r="40"
+					fill="transparent"
+					stroke-dasharray="200"
+					stroke-dashoffset="0"
+					stroke-linecap="round"
+					transform="rotate(128 50 50)"
+					/>
+
+			<defs>
+			<linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+			<stop offset="0%" stop-color="#3b82f6" />
+			<stop offset="100%" stop-color="#a855f7" />
+			</linearGradient>
+			</defs>
+			<circle
+					stroke="url(#ringGradient)"
+					stroke-width="10"
+					stroke-linecap="round"
+					cx="50"
+					cy="50"
+					r="40"
+					fill="transparent"
+					stroke-dasharray="200"
+					stroke-dashoffset="calc(200px * (1 - 0.7))"
+					transform="rotate(128 50 50)"
+					style="transition: stroke-dashoffset 0.3s;"
+					/>
+		</svg>
+		<div class="absolute flex flex-col items-center justify-center">
+			<span class="text-gray-300 text-2xl">70%</span>
+			<span class="text-gray-400 text-sm">of total</span>
+		</div>
+		<div class="absolute bottom-0 w-full text-center text-gray-300 pb-2">
+			RAM
+		</div>
+	</div>
+</template>

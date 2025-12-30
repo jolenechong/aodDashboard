@@ -1,3 +1,4 @@
+
 const REFRESH_MS = 5 * 60 * 1000; // 5 minutes
 
 // battery
@@ -26,33 +27,61 @@ function renderBattery(b) {
 fetchBattery();
 setInterval(fetchBattery, REFRESH_MS);
 
-// ram
-async function fetchRAM() {
+// ram and storage usages
+async function renderStats(ram, sto) {
+	const res = await fetch('components/radial.html');
+	const text = await res.text();
+
+	const temp = document.createElement('div');
+	temp.innerHTML = text;
+
+	const template = temp.querySelector('#progress-circle');
+	const container = document.getElementById('radial_container');
+
+	const circlesData = [
+		{ percent: ram, label: "RAM" },
+		{ percent: sto, label: "STO" }
+	];
+
+	circlesData.forEach(data => {
+		const clone = template.content.cloneNode(true);
+		clone.querySelector("span.text-2xl").textContent = `${data.percent}%`;
+		clone.querySelector("div.absolute.bottom-0").textContent = data.label;
+		const progressCircle = clone.querySelectorAll("svg circle")[1];
+		const r = 40;
+		const dashArray = 2 * Math.PI * r; // ≈ 251.33
+
+		progressCircle.setAttribute("stroke-dasharray", dashArray);
+		progressCircle.setAttribute(
+    		"stroke-dashoffset",
+    		dashArray * (1 - data.percent / 100)
+		);
+		container.appendChild(clone);
+	
+	});
+}
+
+async function fetchStats() {
 	try {
 		const res = await fetch('/api/dashboard/ram', { cache: 'no-store' });
-		const json = await res.json();
+		const ramJson = await res.json();
+		const ram = ramJson.used_pct;
+		const sto = 20; // TODO update this
 
-		renderRAM(json);
+		renderStats(ram, sto);
 	} catch (err) {
 		console.warn('RAM fetch failed', err);
 	}
 }
 
-function renderRAM(b) {
-	const text = document.getElementById('serverStats');
-	if (!text) return;
-	text.textContent = 
-		`${b.used_pct}% RAM used`;
-}
-
-fetchRAM();
-setInterval(fetchRAM, REFRESH_MS);
+fetchStats();
+setInterval(fetchStats, REFRESH_MS);
 
 // clock
 function updateClock() {
-    const now = new Date();
-    const options = { hour: '2-digit', minute: '2-digit', hour12: false };
-    document.getElementById('clock').textContent = now.toLocaleTimeString([], options);
+	const now = new Date();
+	const options = { hour: '2-digit', minute: '2-digit', hour12: false };
+	document.getElementById('clock').textContent = now.toLocaleTimeString([], options);
 }
 setInterval(updateClock, 1000);
 updateClock();
