@@ -165,4 +165,21 @@ function toggleRainMusic(btn) {
 	}
 }
 
+function toggleRelaxMusic(btn) {
+	const audio = document.getElementById('relaxAudio');
+	const stat = document.getElementById('status');
+	const vis = document.getElementById('relaxVis');
+
+	if (audio.paused) {
+		audio.play();
+		stat.textContent = "relax...";
+		startVisualizer(vis);
+	} else {
+		audio.pause();
+		audio.currentTime = 0;
+		stat.textContent = "today...";
+		stopVisualizer(vis);
+	}
+}
+
 stopAllAudio();
