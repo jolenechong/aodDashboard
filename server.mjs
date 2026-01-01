@@ -4,19 +4,20 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { exec, spawn } from 'child_process';
 import { promisify } from 'util';
+import { WebSocketServer } from 'ws';
+import { v4 as uuidv4 } from 'uuid';
 
 const execAsync = promisify(exec);
 const app = express();
 
-const WebSocket = require("ws");
 
-const wss = new WebSocket.Server({ port: 8080 });
-console.log("WebSocket server running on ws://localhost:8080");
+const wss = new WebSocketServer({ port: 8080 });
+console.log("WebSocket server running on ws://0.0.0.0:8080");
 
 wss.on("connection", (ws) => {
-  console.log("Client connected");
+	ws.id = uuidv4();
+	ws.send(JSON.stringify({ status: "connected", id: ws.id }));
 });
-
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,27 +26,49 @@ const MUSIC_DIR = '/data/data/com.termux/files/home/storage/shared/Music';
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 app.post('/api/download', async (req, res) => {
-	const url = req.body.url;
+	const { url, wsId} = req.body;
 	if (!url) return res.status(400).send('No URL provided');
+	res.json({ status: "Starting" });
 
 	try {
-		const cmd = `yt-dlp -x --audio-format mp3 -o "${MUSIC_DIR}/%(title)s.%(ext)s" "${url}"`;
+		const outputTemplate = `${MUSIC_DIR}/%(title)s.%(ext)s`;
+		const ytdlp = spawn("yt-dlp", ["-x","--audio-format","mp3","-o",outputTemplate,url,"--newline","--no-warnings"]);
 
-		await execAsync(cmd);
+		// find the WS to send updates
+		const ws = Array.from(wss.clients).find(c => c.id === wsId);
+		if (!ws || ws.readyState !== ws.OPEN) {
+			console.warn("WS client not found for ID", wsId);
+		}
 
-		// find the latest MP3 file
-		const files = fs.readdirSync(MUSIC_DIR)
-			.filter(f => f.endsWith('.mp3'))
-			.map(f => ({ name: f, time: fs.statSync(path.join(MUSIC_DIR, f)).mtime }))
-			.sort((a, b) => b.time - a.time);
+		ytdlp.stdout.on("data", (data) => {
+			const lines = data.toString().split("\n");
+			lines.forEach(line => {
+				const match = line.match(/\[download\]\s+(\d+\.\d+)%/);
+				if (match && ws && ws.readyState === ws.OPEN) {
+					const percentage = parseFloat(match[1]);
+					ws.send(JSON.stringify({ progress: percentage }));
+				}
+			});
+		});
 
-		if (!files.length) return res.status(500).send('MP3 not found');
+		ytdlp.on("close", () => {
+			const files = fs.readdirSync(MUSIC_DIR)
+				.filter(f => f.endsWith('.mp3'))
+				.map(f => ({ name: f, time: fs.statSync(path.join(MUSIC_DIR, f)).mtime }))
+				.sort((a,b) => b.time - a.time);
 
-		const latestFile = path.join(MUSIC_DIR, files[0].name);
-		res.download(latestFile, files[0].name);
-		// TODO: delete file after
+			if (!files.length) {
+				if (ws && ws.readyState === ws.OPEN) ws.send(JSON.stringify({ error: "MP3 not found" }));
+				return;
+			}
+
+			if (ws && ws.readyState === ws.OPEN) {
+				ws.send(JSON.stringify({ progress: 100, status: "Downloading...", file: files[0].name }));
+			}
+		});
 
 	} catch (err) {
 		console.error(err);
@@ -53,12 +76,25 @@ app.post('/api/download', async (req, res) => {
 	}
 });
 
+app.get("/api/download/:file", (req, res) => {
+	const filePath = path.join(MUSIC_DIR, req.params.file);
+	if (!fs.existsSync(filePath)) return res.status(404).send("File not found");
+
+	res.download(filePath, (err) => {
+		if (err) {
+			console.error("Download error:", err);
+		} else {
+			fs.unlink(filePath, (err) => {
+				if (err) console.error("Failed to delete file:", err);
+			});
+		}
+	});
+});
+
 app.get('/api/search', async (req, res) => {
 	const query = req.query.q;
-	console.log(req.query);
 	if (!query) return res.status(400).send('No Search Query provided');
 
-	// TODO: if its a link then dont search check in fe, else /search onChange
 	const links = await searchYT(query);
 	res.json(links);
 })

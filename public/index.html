@@ -13,10 +13,10 @@
 			<section class="p-4 text-center md:w-1/2 pt-[100px] md:pt-0">
 				<h1 class="text-3xl font-bold text-white mb-2">Download a Song</h1>
 				<p class="text-sm text-center mb-8">Provide a song title and select from the dropdown options which will then populate with the desired URL or provide a YouTube URL.</p>
-				<form action="/api/download" method="post" class="flex flex-col items-center gap-4">
+				<form id="downloadForm" class="flex flex-col items-center gap-4">
 					<div class="relative w-full">
 						<input 
-						 id="search" 
+						 id="url" 
 						 type="text" 
 						 name="url" 
 						 placeholder="Enter song title or video URL" 
@@ -24,15 +24,16 @@
 						 class="w-full p-3 rounded-lg border-none bg-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-600"
 						 autocomplete="off"
 						 >
-						 <ul id="suggestions" class="absolute z-50 mt-1 w-full rounded-md border border-gray-200 bg-slate-900 shadow-lg hidden"></ul></div>
+						 <ul id="suggestions" class="absolute z-50 mt-1 w-full rounded-md border-none outline-none bg-slate-900 shadow-lg hidden"></ul></div>
 					<button 
+											  id="download"
 											  type="submit" 
 											  class="w-40 py-3 rounded-lg text-white font-semibold transition-all duration-700 ease-out bg-gradient-to-r from-blue-500 to-purple-500"
 											  >
 											  Download
 					</button>
 				</form>
-				<p id="status" class="pt-2">Downloaded</p>
+				<p id="status" class="pt-2"></p>
 			</section>
 
 			<section class="md:w-1/2 flex flex-col items-center p-4">
