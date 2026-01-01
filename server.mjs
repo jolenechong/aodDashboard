@@ -2,11 +2,21 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { exec } from 'child_process';
+import { exec, spawn } from 'child_process';
 import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 const app = express();
+
+const WebSocket = require("ws");
+
+const wss = new WebSocket.Server({ port: 8080 });
+console.log("WebSocket server running on ws://localhost:8080");
+
+wss.on("connection", (ws) => {
+  console.log("Client connected");
+});
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,7 +26,7 @@ const MUSIC_DIR = '/data/data/com.termux/files/home/storage/shared/Music';
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 
-app.post('/download', async (req, res) => {
+app.post('/api/download', async (req, res) => {
 	const url = req.body.url;
 	if (!url) return res.status(400).send('No URL provided');
 
@@ -35,12 +45,51 @@ app.post('/download', async (req, res) => {
 
 		const latestFile = path.join(MUSIC_DIR, files[0].name);
 		res.download(latestFile, files[0].name);
+		// TODO: delete file after
 
 	} catch (err) {
 		console.error(err);
 		res.status(500).send(err.message);
 	}
 });
+
+app.get('/api/search', async (req, res) => {
+	const query = req.query.q;
+	console.log(req.query);
+	if (!query) return res.status(400).send('No Search Query provided');
+
+	// TODO: if its a link then dont search check in fe, else /search onChange
+	const links = await searchYT(query);
+	res.json(links);
+})
+
+async function searchYT(query, limit=5) {
+	try {
+		const cmd = `yt-dlp "ytsearch${limit}:${query}" -j --flat-playlist --no-warnings --quiet`;
+		const { stdout } = await execAsync(cmd);
+		const lines = stdout
+			.trim()
+			.split("\n")
+			.filter(line => line.startsWith("{"));
+
+		const links = lines.map(line => {
+			const v = JSON.parse(line);
+			return {
+				title: v.title,
+				url: `https://youtu.be/${v.id}`,
+				duration: v.duration || null
+			};
+		});
+
+		return links;
+
+
+	} catch (err) {
+		console.error(err);
+	}
+
+}
+
 
 app.get('/', async (req, res) => {
 	res.sendFile(path.join(__dirname, 'public', 'index.html'));

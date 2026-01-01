@@ -1,31 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Home Server</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="h-screen bg-gray-950 flex items-center justify-center">
+	<head>
+		<meta charset="UTF-8">
+		<title>Home Server</title>
+		<script src="https://cdn.tailwindcss.com"></script>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		 <script src="js/index.js" defer></script>
+	</head>
+	<body class="bg-black text-gray-300 h-full">
 
-  <div class="p-10 text-center">
-    <h1 class="text-3xl font-bold text-white mb-8">Download MP3 from Youtube URL</h1>
-    <form action="/download" method="post" class="flex flex-col items-center gap-4">
-      <input 
-        type="text" 
-        name="url" 
-        placeholder="Enter video URL" 
-        required
-        class="w-80 p-3 rounded-lg border-none focus:outline-none focus:ring-2 focus:ring-cyan-400 text-black"
-      >
-      <button 
-        type="submit" 
-        class="w-40 py-3 rounded-lg bg-cyan-500 text-white font-semibold transition"
-      >
-        Download
-      </button>
-    </form>
-  </div>
+		<div class="flex flex-col md:flex-row gap-[100px] md:h-screen md:items-center">
+			<section class="p-4 text-center md:w-1/2 pt-[100px] md:pt-0">
+				<h1 class="text-3xl font-bold text-white mb-2">Download a Song</h1>
+				<p class="text-sm text-center mb-8">Provide a song title and select from the dropdown options which will then populate with the desired URL or provide a YouTube URL.</p>
+				<form action="/api/download" method="post" class="flex flex-col items-center gap-4">
+					<div class="relative w-full">
+						<input 
+						 id="search" 
+						 type="text" 
+						 name="url" 
+						 placeholder="Enter song title or video URL" 
+						 required
+						 class="w-full p-3 rounded-lg border-none bg-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-600"
+						 autocomplete="off"
+						 >
+						 <ul id="suggestions" class="absolute z-50 mt-1 w-full rounded-md border border-gray-200 bg-slate-900 shadow-lg hidden"></ul></div>
+					<button 
+											  type="submit" 
+											  class="w-40 py-3 rounded-lg text-white font-semibold transition-all duration-700 ease-out bg-gradient-to-r from-blue-500 to-purple-500"
+											  >
+											  Download
+					</button>
+				</form>
+				<p id="status" class="pt-2">Downloaded</p>
+			</section>
 
-</body>
+			<section class="md:w-1/2 flex flex-col items-center p-4">
+				<h1 class="text-3xl font-bold text-white mb-2 text-center">Batch Download</h1>
+				<p class="text-sm text-center">wAIT still doing. This option will select the first match based on the song name given.</p>
+
+				<textarea id="batch" rows="4" class="mt-4 bg-slate-900 border-none focus:outline-none focus:ring-2 focus:ring-cyan-600 text-sm rounded-md block w-full p-3.5 appearance-none" placeholder="Write in the format of 1 song per line"></textarea>
+
+				<form action="/api/batchdownload" method="post" class="mt-4">
+					<button 
+																type="submit" 
+																class="w-40 py-3 rounded-lg text-white font-semibold transition-all duration-700 ease-out bg-gradient-to-r from-blue-500 to-purple-500"
+																>
+																Download
+					</button>
+				</form>
+
+			</section>
+
+		</div>
+
+	</body>
 </html>
 
