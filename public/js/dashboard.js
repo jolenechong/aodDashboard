@@ -31,41 +31,41 @@ setInterval(fetchBattery, REFRESH_MS);
 let initialized = false;
 
 async function renderStats(ram, sto) {
-    const container = document.getElementById('radial_container');
+	const container = document.getElementById('radial_container');
 
-    if (!initialized) {
-        const res = await fetch('components/radial.html');
-        const text = await res.text();
+	if (!initialized) {
+		const res = await fetch('components/radial.html');
+		const text = await res.text();
 
-        const temp = document.createElement('div');
-        temp.innerHTML = text;
-        const template = temp.querySelector('#progress-circle');
+		const temp = document.createElement('div');
+		temp.innerHTML = text;
+		const template = temp.querySelector('#progress-circle');
 
-        ["RAM", "STO"].forEach(label => {
-            const clone = template.content.cloneNode(true);
-            clone.querySelector("div.absolute.bottom-0").textContent = label;
-            container.appendChild(clone);
-        });
+		["RAM", "STO"].forEach(label => {
+			const clone = template.content.cloneNode(true);
+			clone.querySelector("div.absolute.bottom-0").textContent = label;
+			container.appendChild(clone);
+		});
 
-        initialized = true;
-    }
+		initialized = true;
+	}
 
-    updateCircle(container.children[0], ram);
-    updateCircle(container.children[1], sto);
+	updateCircle(container.children[0], ram);
+	updateCircle(container.children[1], sto);
 }
 
 function updateCircle(circleEl, percent) {
-    circleEl.querySelector("span.text-2xl").textContent = `${percent}%`;
+	circleEl.querySelector("span.text-2xl").textContent = `${percent}%`;
 
-    const progressCircle = circleEl.querySelectorAll("svg circle")[1];
-    const r = 40;
-    const dashArray = 2 * Math.PI * r;
+	const progressCircle = circleEl.querySelectorAll("svg circle")[1];
+	const r = 40;
+	const dashArray = 2 * Math.PI * r;
 
-    progressCircle.setAttribute("stroke-dasharray", dashArray);
-    progressCircle.setAttribute(
-        "stroke-dashoffset",
-        dashArray * (1 - percent / 100)
-    );
+	progressCircle.setAttribute("stroke-dasharray", dashArray);
+	progressCircle.setAttribute(
+		"stroke-dashoffset",
+		dashArray * (1 - percent / 100)
+	);
 }
 
 async function fetchStats() {
@@ -222,3 +222,39 @@ function toggleRelaxMusic(btn) {
 }
 
 stopAllAudio();
+
+// stand up stuffs
+let standReminder = localStorage.getItem("standReminder") === "true";
+function toggleStandRem(btn) {
+	standReminder = !standReminder;
+	localStorage.setItem("standReminder", standReminder);
+	updateBtn(btn);
+}
+
+function updateBtn(btn) {
+	if (standReminder) {
+		btn.classList.add(
+			"transition-all",
+			"duration-700",
+			"ease-out",
+			"bg-gradient-to-r",
+			"from-blue-500",
+			"to-purple-500",
+			"text-transparent",
+			"bg-clip-text"
+		);
+	} else {
+		btn.classList.remove(
+			"transition-all",
+			"duration-700",
+			"ease-out",
+			"bg-gradient-to-r",
+			"from-blue-500",
+			"to-purple-500",
+			"text-transparent",
+			"bg-clip-text"
+		);
+	}
+}
+
+updateBtn(document.getElementById("standRem"));

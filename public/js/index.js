@@ -100,6 +100,7 @@ ws.onmessage = (msg) => {
 		document.getElementById("status").innerText = "Downloaded";
 	} else if (data.status == "connected") {
 		console.log(data);
+		document.getElementById("status").innerText = "Connected";
 	} else if (data.status && data.status != "connected") {
 		document.getElementById("status").innerText = data.status;
 	} else if (data.error) {
