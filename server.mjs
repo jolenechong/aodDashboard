@@ -76,7 +76,7 @@ app.post('/api/download', async (req, res) => {
 	}
 });
 
-app.get("/api/download/:file", (req, res) => {
+app.get("/api/download/:file", async (req, res) => {
 	const filePath = path.join(MUSIC_DIR, req.params.file);
 	if (!fs.existsSync(filePath)) return res.status(404).send("File not found");
 
@@ -90,6 +90,10 @@ app.get("/api/download/:file", (req, res) => {
 		}
 	});
 });
+
+app.post("/api/batchdownload", async (req, res) => {
+	// split by \n then searchYT and get first link then download on each	
+})
 
 app.get('/api/search', async (req, res) => {
 	const query = req.query.q;
@@ -161,6 +165,24 @@ app.get('/api/dashboard/ram', async (req, res) => {
 	} catch (err) {
 		console.error(err);
 		res.status(500).json({ error: 'Failed to read RAM info' });
+	}
+
+})
+app.get('/api/dashboard/storage', async (req, res) => {
+	try {
+		const { stdout } = await execAsync(
+			`df /data | awk -v advertised=128000000000 'NR==2 { used=$3*1024; total=$2*1024; reserved=advertised-total; android_used=used+reserved; printf "%.1f\\n", (android_used/advertised)*100+0.5 }'`
+		);
+
+		const usedPct = stdout.trim();
+
+		await res.json({
+			used_pct: usedPct
+		});
+
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({ error: 'Failed to read storage info' });
 	}
 
 })

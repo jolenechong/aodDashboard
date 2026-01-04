@@ -5,7 +5,6 @@
 		<title>Dashboard</title>
 		<script src="https://cdn.tailwindcss.com"></script>
 		<script src="js/dashboard.js" defer></script>
-		<script src="js/dashboard.js" defer></script>
 	</head>
 	<body class="bg-black">
 
@@ -44,7 +43,13 @@
 			</section>
 
 			<section class="w-2/3 max-w-4xl mx-auto p-4 text-gray-300 px-4">
-				<div id="status" class="text-gray-400 text-sm my-1">today...</div>
+				<div class="flex justify-between">
+					<p id="status" class="m-4">today...</p>
+					<div class="flex flex-row">
+						<p class="m-4">stand up and move</p>
+						<p class="text-4xl p-2">ᨒ </p>
+					</div>
+				</div>
 				<div class="flex flex-col md:flex-row gap-4 items-start">
 					<button class="flex-1 bg-gray-900 rounded-lg p-4 text-left flex flex-col justify-start"
 							onclick="toggleStudyMusic(this)">

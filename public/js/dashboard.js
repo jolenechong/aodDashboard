@@ -28,37 +28,44 @@ fetchBattery();
 setInterval(fetchBattery, REFRESH_MS);
 
 // ram and storage usages
+let initialized = false;
+
 async function renderStats(ram, sto) {
-	const res = await fetch('components/radial.html');
-	const text = await res.text();
+    const container = document.getElementById('radial_container');
 
-	const temp = document.createElement('div');
-	temp.innerHTML = text;
+    if (!initialized) {
+        const res = await fetch('components/radial.html');
+        const text = await res.text();
 
-	const template = temp.querySelector('#progress-circle');
-	const container = document.getElementById('radial_container');
+        const temp = document.createElement('div');
+        temp.innerHTML = text;
+        const template = temp.querySelector('#progress-circle');
 
-	const circlesData = [
-		{ percent: ram, label: "RAM" },
-		{ percent: sto, label: "STO" }
-	];
+        ["RAM", "STO"].forEach(label => {
+            const clone = template.content.cloneNode(true);
+            clone.querySelector("div.absolute.bottom-0").textContent = label;
+            container.appendChild(clone);
+        });
 
-	circlesData.forEach(data => {
-		const clone = template.content.cloneNode(true);
-		clone.querySelector("span.text-2xl").textContent = `${data.percent}%`;
-		clone.querySelector("div.absolute.bottom-0").textContent = data.label;
-		const progressCircle = clone.querySelectorAll("svg circle")[1];
-		const r = 40;
-		const dashArray = 2 * Math.PI * r; // ≈ 251.33
+        initialized = true;
+    }
 
-		progressCircle.setAttribute("stroke-dasharray", dashArray);
-		progressCircle.setAttribute(
-    		"stroke-dashoffset",
-    		dashArray * (1 - data.percent / 100)
-		);
-		container.appendChild(clone);
-	
-	});
+    updateCircle(container.children[0], ram);
+    updateCircle(container.children[1], sto);
+}
+
+function updateCircle(circleEl, percent) {
+    circleEl.querySelector("span.text-2xl").textContent = `${percent}%`;
+
+    const progressCircle = circleEl.querySelectorAll("svg circle")[1];
+    const r = 40;
+    const dashArray = 2 * Math.PI * r;
+
+    progressCircle.setAttribute("stroke-dasharray", dashArray);
+    progressCircle.setAttribute(
+        "stroke-dashoffset",
+        dashArray * (1 - percent / 100)
+    );
 }
 
 async function fetchStats() {
@@ -66,7 +73,9 @@ async function fetchStats() {
 		const res = await fetch('/api/dashboard/ram', { cache: 'no-store' });
 		const ramJson = await res.json();
 		const ram = ramJson.used_pct;
-		const sto = 20; // TODO update this
+		const resSto = await fetch('/api/dashboard/storage', { cache: 'no-store' });
+		const stoJson = await resSto.json();
+		const sto = stoJson.used_pct;
 
 		renderStats(ram, sto);
 	} catch (err) {
